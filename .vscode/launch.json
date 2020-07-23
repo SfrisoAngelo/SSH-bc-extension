@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "al",
+            "request": "launch",
+            "name": "Microsoft cloud sandbox",
+//            "sandboxName": "a37000e7-8ee7-4b87-bdbe-7aa69533c5b8/Acceptance_SSH",
+            "sandboxName": "Acceptance_SSH",
+            "startupObjectId": 73003,
+            "startupObjectType": "Page",
+            "breakOnError": true,
+            "launchBrowser": true,
+            "enableLongRunningSqlStatements": true,
+            "enableSqlInformationDebugger": true,
+            "schemaUpdateMode": "ForceSync"     
+        }
+    ]
+}
