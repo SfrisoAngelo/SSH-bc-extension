@@ -22,12 +22,7 @@ page 73024 "Customer Unit List"
                     ApplicationArea = All;
 
                 }
-                field("E-Mail"; "E-Mail")
-                {
-                    ApplicationArea = All;
-
-                }
-                field("ItemUnitId"; ItemUnitId)
+                field("ItemUnitDescription"; ItemUnitDescription)
                 {
                     ApplicationArea = All;
                 }
@@ -40,6 +35,11 @@ page 73024 "Customer Unit List"
                 field("Complex Name"; "Complex Name")
                 {
                     ApplicationArea = All;
+                }
+                field("E-Mail"; "E-Mail")
+                {
+                    ApplicationArea = All;
+
                 }
             }
         }

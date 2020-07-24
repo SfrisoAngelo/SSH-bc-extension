@@ -7,6 +7,13 @@ tableextension 73017 CustomerExt extends "Customer"
             DataClassification = ToBeClassified;
             TableRelation = Item;
         }
+        field(73026; "ItemUnitDescription"; Text[50])
+        {
+            Caption = 'Unit Name';
+            Editable = false;
+            FieldClass = FlowField;
+            CalcFormula = lookup (Item.Description where("No." = field(ItemUnitId)));
+        }
         field(73019; "FloorId"; Text[50])
         {
             Caption = 'Floor Id';

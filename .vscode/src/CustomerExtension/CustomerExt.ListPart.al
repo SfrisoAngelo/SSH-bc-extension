@@ -5,7 +5,7 @@ page 73026 "Customer List Part"
     SourceTable = Customer;
     CardPageId = "Customer Unit Card";
     InsertAllowed = false;
-    ShowFilter = true;
+    ShowFilter = false;
     layout
     {
         area(Content)
@@ -14,8 +14,9 @@ page 73026 "Customer List Part"
             {
                 field("No."; "No.") { ApplicationArea = All; }
                 field(Name; Name) { ApplicationArea = All; }
-                field("E-Mail"; "E-Mail") { ApplicationArea = All; }
                 field("Floor Name"; "Floor Name") { ApplicationArea = All; }
+                field("Complex Name"; "Complex Name") { ApplicationArea = All; }
+                field("E-Mail"; "E-Mail") { ApplicationArea = All; }
             }
         }
     }
