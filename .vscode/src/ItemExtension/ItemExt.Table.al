@@ -8,6 +8,12 @@ tableextension 73008 ItemExt extends "Item"
             OptionMembers = "Room","House";
             OptionCaption = 'Room,House';
         }
+        field(73027; "Status"; Option)
+        {
+            DataClassification = ToBeClassified;
+            OptionMembers = "Published","Under Reservation","Salary Check","Rented","Available";
+            OptionCaption = 'Published,Under Reservation,Salary Check, Rented, Available';
+        }
         field(73010; "FloorId"; Code[20])
         {
             DataClassification = ToBeClassified;

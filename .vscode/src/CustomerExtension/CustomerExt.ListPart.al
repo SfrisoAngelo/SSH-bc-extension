@@ -14,6 +14,7 @@ page 73026 "Customer List Part"
             {
                 field("No."; "No.") { ApplicationArea = All; }
                 field(Name; Name) { ApplicationArea = All; }
+                field("Unit Name"; ItemUnitDescription) { ApplicationArea = All; }
                 field("Floor Name"; "Floor Name") { ApplicationArea = All; }
                 field("Complex Name"; "Complex Name") { ApplicationArea = All; }
                 field("E-Mail"; "E-Mail") { ApplicationArea = All; }

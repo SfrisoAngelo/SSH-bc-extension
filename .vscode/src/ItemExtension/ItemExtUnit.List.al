@@ -28,6 +28,11 @@ page 73014 "Item Unit List"
 
                 }
 
+                field(Status; Status)
+                {
+                    ApplicationArea = All;
+
+                }
                 field("Floor Name"; "Floor Name")
                 {
                     ApplicationArea = All;

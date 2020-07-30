@@ -25,6 +25,11 @@ page 73016 "Item Unit Card"
                     ApplicationArea = All;
 
                 }
+                field(Status; Status)
+                {
+                    ApplicationArea = All;
+
+                }
                 field(FloorId; FloorId)
                 {
                     ApplicationArea = All;
