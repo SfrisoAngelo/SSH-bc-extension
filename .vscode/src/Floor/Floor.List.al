@@ -28,9 +28,21 @@ page 73006 "Floor List"
                 }
             }
         }
-        area(Factboxes)
+        area(FactBoxes)
         {
-
+            part(MyPart; "Acc. Sched. KPI Web Srv. Lines")
+            {
+                ApplicationArea = All;
+                SubPageView = SORTING("Acc. Schedule Name");
+            }
+            systempart(Links; Links)
+            {
+                ApplicationArea = All;
+            }
+            systempart(Notes; Notes)
+            {
+                ApplicationArea = All;
+            }
         }
     }
 

@@ -46,7 +46,18 @@ page 73014 "Item Unit List"
         }
         area(Factboxes)
         {
-
+            // part(ItemSattusRentedCuePage; ItemSattusRentedCuePage)
+            // {
+            //     ApplicationArea = All;
+            // }
+            // systempart(Links; Links)
+            // {
+            //     ApplicationArea = All;
+            // }
+            // systempart(Notes; Notes)
+            // {
+            //     ApplicationArea = All;
+            // }
         }
     }
 
