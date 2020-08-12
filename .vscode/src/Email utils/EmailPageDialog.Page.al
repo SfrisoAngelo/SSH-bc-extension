@@ -18,4 +18,10 @@ page 50133 EmailPageDialog
     var
         Subject: Text;
         Body: Text;
+
+    procedure PrintInput(AddressList: Text);
+    begin
+        //Message('You inserted the following data. Subject: ' + Subject + ', Body: ' + Body);
+        System.Hyperlink('https://outlook.office.com/mail/deeplink/compose?subject=' + Subject + '&body=' + Body + '&to=' + AddressList);
+    end;
 }

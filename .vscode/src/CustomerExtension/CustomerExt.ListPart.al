@@ -26,7 +26,7 @@ page 73026 "Customer List Part"
     {
         area(Processing)
         {
-            action("Send Mail via Outlook")
+            action("Send Mail via Outlook Desktop")
             {
                 ApplicationArea = All;
                 ToolTip = '...';
@@ -47,9 +47,9 @@ page 73026 "Customer List Part"
                         //end
                         UNTIL Customer.NEXT() = 0;
                     Message(AddressList);
-                    //System.Hyperlink('mailto:?bcc=' + AddressList); //--> works but open outlook desktop
+                    System.Hyperlink('mailto:?bcc=' + AddressList); //--> works but open outlook desktop
                     //System.Hyperlink('https://col125.mail.live.com/?page=Compose&bcc=' + AddressList); //--> doesn't work
-                    System.Hyperlink('https://outlook.office.com/mail/deeplink/compose?to=' + AddressList); // opens outlook web but problem is, cc&bcc do not work, and the "+" in the email confuses it
+                    //System.Hyperlink('https://outlook.office.com/mail/deeplink/compose?to=' + AddressList); // opens outlook web but problem is, cc&bcc do not work, and the "+" in the email confuses it
                 end;
             }
 
@@ -113,7 +113,8 @@ page 73026 "Customer List Part"
                         Message('error');
                 end;
             }
-            action("Send email")
+
+            action("Send Email via Sendgrid")
             {
                 ApplicationArea = All;
                 ToolTip = '...';
@@ -165,25 +166,36 @@ page 73026 "Customer List Part"
                     if ResponseMessage.IsSuccessStatusCode then
                         Message('Email sent!')
                     else
-                        Message('error');
+                        Message('Error');
                 end;
             }
 
-            action("EmailDialog")
+            action("Send Email via Dialog Page and OWA")
             {
                 ApplicationArea = All;
                 ToolTip = '...';
 
                 trigger OnAction();
                 var
+                    Customer: Record Customer;
+                    AddressList: Text;
                     lPage: Page EmailPageDialog;
                     lAction: Action;
                 begin
+                    AddressList := '';
+                    CurrPage.SETSELECTIONFILTER(Customer);
+                    IF Customer.FIND('-') THEN
+                        REPEAT
+                            if AddressList <> '' then
+                                AddressList := AddressList + ';';
+                            AddressList := AddressList + Customer."E-Mail";
+                        UNTIL Customer.NEXT() = 0;
+
                     lAction := lPage.RunModal();
-                    //lPage.
+
                     case lAction of
                         action::OK, action::LookupOK:
-                            ExecuteOKCode();
+                            lPage.PrintInput(AddressList); //ExecuteOKCode();
                         action::Cancel, action::LookupCancel:
                             ExecuteCancelCode();
                     end;
@@ -193,13 +205,13 @@ page 73026 "Customer List Part"
         }
     }
 
-    procedure ExecuteOKCode();
+    /*procedure ExecuteOKCode();
     begin
         Message('Ok');
-    end;
+    end;*/
 
     procedure ExecuteCancelCode();
     begin
-        Message('Cancel');
+        Message('You pressed Cancel. Nothing happened.');
     end;
 }
