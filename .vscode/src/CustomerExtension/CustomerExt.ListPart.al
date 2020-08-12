@@ -30,7 +30,7 @@ page 73026 "Customer List Part"
             {
                 ApplicationArea = All;
                 ToolTip = '...';
-                Visible = false;
+                //Visible = false;
 
                 trigger OnAction();
                 var
@@ -42,11 +42,14 @@ page 73026 "Customer List Part"
                     CurrPage.SETSELECTIONFILTER(Customer);
                     IF Customer.FIND('-') THEN
                         REPEAT
-                            IF Customer.MARK() THEN //begin
-                                AddressList := AddressList + Customer."E-Mail" + ';';
+                            //IF Customer.MARK() THEN //begin --> with this, the "select all" doesn't work (If all records are selected, marks will not be used.)
+                            AddressList := AddressList + Customer."E-Mail" + ';';
                         //end
                         UNTIL Customer.NEXT() = 0;
-                    System.Hyperlink('mailto:?bcc=' + AddressList);
+                    Message(AddressList);
+                    //System.Hyperlink('mailto:?bcc=' + AddressList); //--> works but open outlook desktop
+                    //System.Hyperlink('https://col125.mail.live.com/?page=Compose&bcc=' + AddressList); //--> doesn't work
+                    System.Hyperlink('https://outlook.office.com/mail/deeplink/compose?to=' + AddressList); // opens outlook web but problem is, cc&bcc do not work, and the "+" in the email confuses it
                 end;
             }
 
@@ -146,7 +149,7 @@ page 73026 "Customer List Part"
                     RequestMessage.SetRequestUri('https://api.sendgrid.com/v3/mail/send');
 
                     RequestMessage.GetHeaders(Headers);
-                    Headers.Add('Authorization', 'Bearer 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');
+                    Headers.Add('Authorization', 'Bearer INSERTKEYHERE');
 
                     Content.WriteFrom('{"personalizations": [{ "to": [' + AddressList + '],"subject": "Test email"}],"from": {"email": "giulia@hoppinger.com","name":"Giulia Costantini"},"content":[{"type": "text/plain", "value": "This is a test email."}]}');
                     Content.GetHeaders(contentHeaders);
@@ -165,6 +168,38 @@ page 73026 "Customer List Part"
                         Message('error');
                 end;
             }
+
+            action("EmailDialog")
+            {
+                ApplicationArea = All;
+                ToolTip = '...';
+
+                trigger OnAction();
+                var
+                    lPage: Page EmailPageDialog;
+                    lAction: Action;
+                begin
+                    lAction := lPage.RunModal();
+                    //lPage.
+                    case lAction of
+                        action::OK, action::LookupOK:
+                            ExecuteOKCode();
+                        action::Cancel, action::LookupCancel:
+                            ExecuteCancelCode();
+                    end;
+                end;
+
+            }
         }
     }
+
+    procedure ExecuteOKCode();
+    begin
+        Message('Ok');
+    end;
+
+    procedure ExecuteCancelCode();
+    begin
+        Message('Cancel');
+    end;
 }
