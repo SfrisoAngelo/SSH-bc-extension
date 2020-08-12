@@ -26,10 +26,11 @@ page 73026 "Customer List Part"
     {
         area(Processing)
         {
-            action("Send Mail")
+            action("Send Mail via Outlook")
             {
                 ApplicationArea = All;
                 ToolTip = '...';
+                Visible = false;
 
                 trigger OnAction();
                 var
@@ -49,10 +50,11 @@ page 73026 "Customer List Part"
                 end;
             }
 
-            action("Web service call")
+            action("Web service test")
             {
                 ApplicationArea = All;
                 ToolTip = '...';
+                Visible = false;
 
                 trigger OnAction();
                 var
@@ -104,6 +106,61 @@ page 73026 "Customer List Part"
 
                     if ResponseMessage.IsSuccessStatusCode then
                         Message(ResponseContent)
+                    else
+                        Message('error');
+                end;
+            }
+            action("Send email")
+            {
+                ApplicationArea = All;
+                ToolTip = '...';
+
+                trigger OnAction();
+                var
+                    Customer: Record Customer;
+                    AddressList: Text;
+
+                    Client: HttpClient;
+                    Headers: HttpHeaders;
+                    ContentHeaders: HttpHeaders;
+                    RequestMessage: HttpRequestMessage;
+                    ResponseMessage: HttpResponseMessage;
+                    Content: HttpContent;
+                    ReqContent: HttpContent;
+                    ResponseContent: Text;
+                    JSONContent: JsonObject;
+
+                begin
+                    AddressList := '';
+                    CurrPage.SETSELECTIONFILTER(Customer);
+                    IF Customer.FIND('-') THEN
+                        REPEAT
+                            IF Customer.MARK() THEN
+                                IF AddressList = '' THEN
+                                    AddressList := AddressList + '{"email": "' + Customer."E-Mail" + '"}'
+                                else
+                                    AddressList := AddressList + ', {"email": "' + Customer."E-Mail" + '"}';
+                        UNTIL Customer.NEXT() = 0;
+
+                    RequestMessage.Method := 'POST';
+                    RequestMessage.SetRequestUri('https://api.sendgrid.com/v3/mail/send');
+
+                    RequestMessage.GetHeaders(Headers);
+                    Headers.Add('Authorization', 'Bearer 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');
+
+                    Content.WriteFrom('{"personalizations": [{ "to": [' + AddressList + '],"subject": "Test email"}],"from": {"email": "giulia@hoppinger.com","name":"Giulia Costantini"},"content":[{"type": "text/plain", "value": "This is a test email."}]}');
+                    Content.GetHeaders(contentHeaders);
+                    contentHeaders.Clear();
+                    contentHeaders.Add('Content-Type', 'application/json');
+                    RequestMessage.Content := Content;
+
+                    client.Send(RequestMessage, ResponseMessage);
+
+                    // Read the response content as json.
+                    ResponseMessage.Content().ReadAs(ResponseContent);
+
+                    if ResponseMessage.IsSuccessStatusCode then
+                        Message('Email sent!')
                     else
                         Message('error');
                 end;
