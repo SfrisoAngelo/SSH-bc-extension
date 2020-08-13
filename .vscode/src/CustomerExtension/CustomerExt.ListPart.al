@@ -26,7 +26,7 @@ page 73026 "Customer List Part"
     {
         area(Processing)
         {
-            action("Send Mail via Outlook Desktop")
+            action("Send Email via Outlook Desktop")
             {
                 ApplicationArea = All;
                 ToolTip = '...';
@@ -122,7 +122,9 @@ page 73026 "Customer List Part"
                 trigger OnAction();
                 var
                     Customer: Record Customer;
+                    EnvVar: Record EnvironmentVariable;
                     AddressList: Text;
+                    BearerKey: Text;
 
                     Client: HttpClient;
                     Headers: HttpHeaders;
@@ -130,29 +132,69 @@ page 73026 "Customer List Part"
                     RequestMessage: HttpRequestMessage;
                     ResponseMessage: HttpResponseMessage;
                     Content: HttpContent;
-                    ReqContent: HttpContent;
-                    ResponseContent: Text;
-                    JSONContent: JsonObject;
+                    RequestContentText: Text;
+                    ResponseContentText: Text;
+
+                    JSONResponseArr: JsonArray;
+
+                    JSONFromObj: JsonObject;
+                    JSONContentArr: JsonArray;
+                    JSONContentObj: JsonObject;
+                    JSONPersArr: JsonArray;
+                    JSONToArr: JsonArray;
+                    JSONToObj: JsonObject;
+                    JSONBccArr: JsonArray;
+                    JSONPersObj: JsonObject;
+                    JSONSingleAddressObj: JsonObject;
+                    JSONRequestObj: JsonObject;
 
                 begin
                     AddressList := '';
                     CurrPage.SETSELECTIONFILTER(Customer);
                     IF Customer.FIND('-') THEN
                         REPEAT
-                            IF Customer.MARK() THEN
-                                IF AddressList = '' THEN
-                                    AddressList := AddressList + '{"email": "' + Customer."E-Mail" + '"}'
-                                else
-                                    AddressList := AddressList + ', {"email": "' + Customer."E-Mail" + '"}';
+                            IF AddressList <> '' THEN
+                                AddressList := AddressList + ', ';
+                            AddressList := AddressList + '{"email": "' + Customer."E-Mail" + '"}';
+                            //JSONSingleAddressObj := JSONSingleAddressObj.Clone().AsObject();
+                            //JSONSingleAddressObj.Remove('email');
+                            //JSONSingleAddressObj.Add('email', Customer."E-Mail");
+                            JSONSingleAddressObj := CreateJSONObject('email', Customer."E-Mail");
+                            JSONBccArr.Add(JSONSingleAddressObj);
                         UNTIL Customer.NEXT() = 0;
 
                     RequestMessage.Method := 'POST';
                     RequestMessage.SetRequestUri('https://api.sendgrid.com/v3/mail/send');
 
                     RequestMessage.GetHeaders(Headers);
-                    Headers.Add('Authorization', 'Bearer INSERTKEYHERE');
+                    EnvVar.Get('sendgrid');
+                    BearerKey := 'Bearer ' + EnvVar.Value;
+                    Headers.Add('Authorization', BearerKey);
 
-                    Content.WriteFrom('{"personalizations": [{ "to": [' + AddressList + '],"subject": "Test email"}],"from": {"email": "giulia@hoppinger.com","name":"Giulia Costantini"},"content":[{"type": "text/plain", "value": "This is a test email."}]}');
+                    // FROM 
+                    JSONFromObj.Add('email', 'giulia@hoppinger.com');
+                    JSONFromObj.Add('name', 'Giulia Costantini');
+                    JSONRequestObj.Add('from', JSONFromObj);
+
+                    // CONTENT
+                    JSONContentObj.Add('type', 'text/plain');
+                    JSONContentObj.Add('value', 'Body of test email');
+                    JSONContentArr.Add(JSONContentObj);
+                    JSONRequestObj.Add('content', JSONContentArr);
+
+                    // PERSONALIZATIONS (To, Bcc, Subject, etc)
+                    // JSONBccArr has been filled in above while looping through the selected customers
+                    JSONToObj.Add('email', 'giulia@hoppinger.com');
+                    JSONToArr.Add(JSONToObj);
+                    JSONPersObj.Add('to', JSONToArr);
+                    JSONPersObj.Add('bcc', JSONBccArr);
+                    JSONPersObj.Add('subject', 'Subject of test email');
+                    JSONPersArr.Add(JSONPersObj);
+                    JSONRequestObj.Add('personalizations', JSONPersArr);
+
+                    JSONRequestObj.WriteTo(RequestContentText);
+                    Content.WriteFrom(RequestContentText);
+                    //Content.WriteFrom('{"personalizations": [{ "to": [' + AddressList + '],"subject": "Test email"}],"from": {"email": "giulia@hoppinger.com","name":"Giulia Costantini"},"content":[{"type": "text/plain", "value": "This is a test email."}]}');
                     Content.GetHeaders(contentHeaders);
                     contentHeaders.Clear();
                     contentHeaders.Add('Content-Type', 'application/json');
@@ -161,12 +203,15 @@ page 73026 "Customer List Part"
                     client.Send(RequestMessage, ResponseMessage);
 
                     // Read the response content as json.
-                    ResponseMessage.Content().ReadAs(ResponseContent);
+                    ResponseMessage.Content().ReadAs(ResponseContentText);
 
                     if ResponseMessage.IsSuccessStatusCode then
-                        Message('Email sent!')
-                    else
+                        Message('Email sent to: ' + AddressList)
+                    else begin
                         Message('Error');
+                        if not JSONResponseArr.ReadFrom(ResponseContentText) then
+                            Error('invalid response, expected JSON object');
+                    end;
                 end;
             }
 
@@ -178,8 +223,8 @@ page 73026 "Customer List Part"
                 trigger OnAction();
                 var
                     Customer: Record Customer;
-                    AddressList: Text;
                     lPage: Page EmailPageDialog;
+                    AddressList: Text;
                     lAction: Action;
                 begin
                     AddressList := '';
@@ -213,5 +258,10 @@ page 73026 "Customer List Part"
     procedure ExecuteCancelCode();
     begin
         Message('You pressed Cancel. Nothing happened.');
+    end;
+
+    procedure CreateJSONObject(keyString: Text; valueString: Text) JSONObj: JsonObject;
+    begin
+        JSONObj.Add(keyString, valueString);
     end;
 }

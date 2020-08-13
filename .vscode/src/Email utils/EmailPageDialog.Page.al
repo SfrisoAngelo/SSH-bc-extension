@@ -22,6 +22,7 @@ page 50133 EmailPageDialog
     procedure PrintInput(AddressList: Text);
     begin
         //Message('You inserted the following data. Subject: ' + Subject + ', Body: ' + Body);
+        //System.Hyperlink('mailto:?subject=' + Subject + '&body=' + Body + '&bcc=' + AddressList);
         System.Hyperlink('https://outlook.office.com/mail/deeplink/compose?subject=' + Subject + '&body=' + Body + '&to=' + AddressList);
     end;
 }
